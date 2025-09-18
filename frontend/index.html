@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Horas Laborales</title>
+    <style>
+        :root {
+            --primary: #4a6fa5;
+            --secondary: #166088;
+            --accent: #4cb5ae;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7f9;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1, h2, h3 {
+            margin-bottom: 0.5rem;
+        }
+        
+        .user-section {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .user-info {
+            padding: 10px 15px;
+            background-color: var(--accent);
+            color: white;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .user-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .user-dropdown {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+            color: black;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-export {
+            background-color: var(--accent);
+            color: white;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .time-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .current-time {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            resize: vertical;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        tr:hover {
+            background-color: #f1f3f5;
+        }
+        
+        .action-btn {
+            padding: 5px 10px;
+            margin: 0 2px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        
+        .btn-edit {
+            background-color: var(--warning);
+            color: black;
+        }
+        
+        .btn-delete {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .close {
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .export-options {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .login-section {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .time-controls {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .export-options {
+                flex-direction: column;
+            }
+            
+            .user-section {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sección de Ingreso -->
+        <div id="login-section" class="login-section">
+            <h2>Ingresar al Sistema</h2>
+            <div class="form-group">
+                <label for="username">Nombre de Usuario:</label>
+                <input type="text" id="username" placeholder="Ingresa tu nombre">
+            </div>
+            <div class="form-group">
+                <label for="user-history">Usuarios recientes:</label>
+                <select id="user-history" class="user-dropdown">
+                    <option value="">Selecciona un usuario</option>
+                    <!-- Los usuarios se cargarán aquí dinámicamente -->
+                </select>
+            </div>
+            <button class="btn btn-primary" id="btn-ingresar">Ingresar</button>
+        </div>
+
+        <!-- Aplicación principal -->
+        <div id="app" class="hidden">
+            <header>
+                <div>
+                    <h1>Control de Horas Laborales</h1>
+                    <p>Registro de jornada y actividades diarias</p>
+                </div>
+                <div class="user-section">
+                    <div class="user-info" id="current-user">Usuario: </div>
+                    <div class="user-selector">
+                        <select id="user-switcher" class="user-dropdown">
+                            <!-- Los usuarios se cargarán aquí dinámicamente -->
+                        </select>
+                        <button class="btn btn-danger" id="btn-cerrar">Cerrar Sesión</button>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="card">
+                <h2>Registro de Jornada</h2>
+                <div class="current-time" id="current-time">--:--:--</div>
+                
+                <div class="time-controls">
+                    <button class="btn btn-primary" id="btn-iniciar">Iniciar Jornada</button>
+                    <button class="btn btn-danger" id="btn-pausa">Pausa</button>
+                    <button class="btn btn-success" id="btn-finalizar">Finalizar Jornada</button>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-box">
+                        <h3>Horas Trabajadas Hoy</h3>
+                        <div class="stat-value" id="horas-hoy">0h 0m</div>
+                    </div>
+                    <div class="stat-box">
+                        <h3>Horas Semanales</h3>
+                        <div class="stat-value" id="horas-semana">0h 0m</div>
+                    </div>
+                    <div class="stat-box">
+                        <h3>Estado</h3>
+                        <div class="stat-value" id="estado">No iniciado</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Registro de Actividades</h2>
+                <textarea id="actividades" placeholder="Describe las actividades realizadas hoy..."></textarea>
+                <button class="btn btn-primary" id="btn-guardar-actividades">Guardar Actividades</button>
+            </div>
+            
+            <div class="card">
+                <h2>Historial de Jornadas</h2>
+                <div class="filters">
+                    <div class="form-group">
+                        <label for="filtro-fecha">Filtrar por fecha:</label>
+                        <input type="date" id="filtro-fecha">
+                    </div>
+                    <button class="btn btn-primary" id="btn-filtrar">Filtrar</button>
+                    <button class="btn" id="btn-limpiar-filtro">Limpiar Filtro</button>
+                </div>
+                
+                <table id="tabla-historial">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Inicio</th>
+                            <th>Fin</th>
+                            <th>Horas</th>
+                            <th>Actividades</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Los registros se insertarán aquí mediante JavaScript -->
+                    </tbody>
+                </table>
+                
+                <div class="export-options">
+                    <button class="btn btn-export" id="btn-exportar-pdf">Exportar a PDF</button>
+                    <button class="btn btn-export" id="btn-exportar-excel">Exportar a Excel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para editar registro -->
+    <div class="modal" id="modal-editar">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Editar Registro</h3>
+                <span class="close" id="cerrar-modal">&times;</span>
+            </div>
+            <input type="hidden" id="editar-id">
+            <div class="form-group">
+                <label for="editar-fecha">Fecha:</label>
+                <input type="date" id="editar-fecha">
+            </div>
+            <div class="form-group">
+                <label for="editar-inicio">Hora de inicio:</label>
+                <input type="time" id="editar-inicio">
+            </div>
+            <div class="form-group">
+                <label for="editar-fin">Hora de fin:</label>
+                <input type="time" id="editar-fin">
+            </div>
+            <div class="form-group">
+                <label for="editar-actividades">Actividades:</label>
+                <textarea id="editar-actividades"></textarea>
+            </div>
+            <button class="btn btn-primary" id="btn-guardar-cambios">Guardar Cambios</button>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let usuarioActual = null;
+        let registros = [];
+        let sesionActual = null;
+        let registrosFiltrados = [];
+        let usuariosRegistrados = JSON.parse(localStorage.getItem('usuarios')) || [];
+        
+        // Elementos DOM
+        const seccionLogin = document.getElementById('login-section');
+        const seccionApp = document.getElementById('app');
+        const elementoHoraActual = document.getElementById('current-time');
+        const elementoUsuarioActual = document.getElementById('current-user');
+        const elementoHorasHoy = document.getElementById('horas-hoy');
+        const elementoHorasSemana = document.getElementById('horas-semana');
+        const elementoEstado = document.getElementById('estado');
+        const elementoActividades = document.getElementById('actividades');
+        const cuerpoTablaHistorial = document.querySelector('#tabla-historial tbody');
+        const modalEditar = document.getElementById('modal-editar');
+        const selectorUsuario = document.getElementById('user-history');
+        const selectorCambioUsuario = document.getElementById('user-switcher');
+        
+        // URLs de la API (ajusta según tu configuración)
+        const API_BASE_URL = 'http://localhost:3000/api';
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', () => {
+            actualizarHoraActual();
+            setInterval(actualizarHoraActual, 1000);
+            
+            // Cargar usuarios registrados
+            cargarUsuariosEnSelectores();
+            
+            // Verificar si hay un usuario en localStorage
+            const usuarioGuardado = localStorage.getItem('usuarioActual');
+            if (usuarioGuardado) {
+                usuarioActual = usuarioGuardado;
+                mostrarAplicacion();
+            }
+            
+            // Event listeners
+            document.getElementById('btn-ingresar').addEventListener('click', ingresar);
+            document.getElementById('btn-cerrar').addEventListener('click', cerrarSesion);
+            selectorUsuario.addEventListener('change', seleccionarUsuario);
+            selectorCambioUsuario.addEventListener('change', cambiarUsuario);
+            
+            document.getElementById('btn-iniciar').addEventListener('click', iniciarJornada);
+            document.getElementById('btn-pausa').addEventListener('click', pausarJornada);
+            document.getElementById('btn-finalizar').addEventListener('click', finalizarJornada);
+            document.getElementById('btn-guardar-actividades').addEventListener('click', guardarActividades);
+            
+            document.getElementById('btn-filtrar').addEventListener('click', filtrarRegistros);
+            document.getElementById('btn-limpiar-filtro').addEventListener('click', limpiarFiltro);
+            
+            document.getElementById('btn-exportar-pdf').addEventListener('click', exportarPDF);
+            document.getElementById('btn-exportar-excel').addEventListener('click', exportarExcel);
+            
+            document.getElementById('cerrar-modal').addEventListener('click', cerrarModal);
+            document.getElementById('btn-guardar-cambios').addEventListener('click', guardarCambios);
+            
+            window.addEventListener('click', (e) => {
+                if (e.target === modalEditar) cerrarModal();
+            });
+        });
+        
+        // Funciones de usuarios
+        function cargarUsuariosEnSelectores() {
+            selectorUsuario.innerHTML = '<option value="">Selecciona un usuario</option>';
+            selectorCambioUsuario.innerHTML = '';
+            
+            usuariosRegistrados.forEach(usuario => {
+                const opcion = document.createElement('option');
+                opcion.value = usuario;
+                opcion.textContent = usuario;
+                
+                const opcion2 = document.createElement('option');
+                opcion2.value = usuario;
+                opcion2.textContent = usuario;
+                
+                selectorUsuario.appendChild(opcion);
+                selectorCambioUsuario.appendChild(opcion2);
+            });
+            
+            // Seleccionar el usuario actual si existe
+            if (usuarioActual) {
+                selectorCambioUsuario.value = usuarioActual;
+            }
+        }
+        
+        function seleccionarUsuario() {
+            const usuarioSeleccionado = selectorUsuario.value;
+            if (usuarioSeleccionado) {
+                document.getElementById('username').value = usuarioSeleccionado;
+            }
+        }
+        
+        function cambiarUsuario() {
+            const nuevoUsuario = selectorCambioUsuario.value;
+            if (nuevoUsuario && nuevoUsuario !== usuarioActual) {
+                // Guardar actividades antes de cambiar
+                if (elementoActividades.value.trim() !== '') {
+                    guardarActividades();
+                }
+                
+                usuarioActual = nuevoUsuario;
+                localStorage.setItem('usuarioActual', usuarioActual);
+                cargarDatosUsuario();
+                actualizarEstadisticas();
+                renderizarTablaHistorial();
+                elementoUsuarioActual.textContent = `Usuario: ${usuarioActual}`;
+            }
+        }
+        
+        function agregarUsuarioSiNoExiste(nombreUsuario) {
+            if (!usuariosRegistrados.includes(nombreUsuario)) {
+                usuariosRegistrados.push(nombreUsuario);
+                localStorage.setItem('usuarios', JSON.stringify(usuariosRegistrados));
+                cargarUsuariosEnSelectores();
+            }
+        }
+        
+        // Funciones principales
+        function actualizarHoraActual() {
+            const ahora = new Date();
+            elementoHoraActual.textContent = ahora.toLocaleTimeString();
+        }
+        
+        function ingresar() {
+            const nombreUsuario = document.getElementById('username').value.trim();
+            
+            if (!nombreUsuario) {
+                alert('Por favor, ingresa tu nombre');
+                return;
+            }
+            
+            usuarioActual = nombreUsuario;
+            localStorage.setItem('usuarioActual', usuarioActual);
+            agregarUsuarioSiNoExiste(nombreUsuario);
+            mostrarAplicacion();
+        }
+        
+        function cerrarSesion() {
+            usuarioActual = null;
+            localStorage.removeItem('usuarioActual');
+            mostrarLogin();
+        }
+        
+        function mostrarLogin() {
+            seccionApp.classList.add('hidden');
+            seccionLogin.classList.remove('hidden');
+        }
+        
+        function mostrarAplicacion() {
+            seccionLogin.classList.add('hidden');
+            seccionApp.classList.remove('hidden');
+            elementoUsuarioActual.textContent = `Usuario: ${usuarioActual}`;
+            selectorCambioUsuario.value = usuarioActual;
+            
+            cargarDatosUsuario();
+            actualizarEstadisticas();
+            renderizarTablaHistorial();
+        }
+        
+        async function cargarDatosUsuario() {
+            try {
+                // Obtener registros del usuario desde el backend
+                const response = await fetch(`${API_BASE_URL}/registros?usuario=${encodeURIComponent(usuarioActual)}`);
+                
+                if (!response.ok) {
+                    throw new Error('Error al obtener registros');
+                }
+                
+                registros = await response.json();
+                registros.sort((a, b) => new Date(b.fecha + ' ' + b.inicio) - new Date(a.fecha + ' ' + a.inicio));
+                
+                // Obtener sesión activa del día
+                const hoy = new Date().toLocaleDateString('es-ES');
+                try {
+                    const activeResponse = await fetch(`${API_BASE_URL}/sesion-activa?usuario=${encodeURIComponent(usuarioActual)}&fecha=${hoy}`);
+                    
+                    if (activeResponse.ok) {
+                        sesionActual = await activeResponse.json();
+                    } else {
+                        sesionActual = null;
+                    }
+                } catch (error) {
+                    sesionActual = null;
+                }
+                
+                // Cargar actividades del día actual si existen
+                const registroHoy = registros.find(registro => 
+                    registro.fecha === hoy && registro.actividades);
+                    
+                if (registroHoy) {
+                    elementoActividades.value = registroHoy.actividades || '';
+                } else {
+                    elementoActividades.value = '';
+                }
+                
+                actualizarEstado();
+            } catch (error) {
+                console.error('Error al cargar los datos:', error);
+                // Fallback a localStorage si el backend no está disponible
+                const registrosLocal = JSON.parse(localStorage.getItem('registros')) || [];
+                registros = registrosLocal.filter(registro => registro.usuario === usuarioActual);
+                
+                const hoy = new Date().toLocaleDateString('es-ES');
+                sesionActual = registros.find(registro => 
+                    registro.fecha === hoy && registro.fin === null) || null;
+                
+                const registroHoy = registros.find(registro => 
+                    registro.fecha === hoy && registro.actividades);
+                    
+                if (registroHoy) {
+                    elementoActividades.value = registroHoy.actividades || '';
+                } else {
+                    elementoActividades.value = '';
+                }
+                
+                actualizarEstado();
+                actualizarEstadisticas();
+                renderizarTablaHistorial();
+            }
+        }
+        
+        function guardarEnBackend(registro) {
+            // Intentar guardar en el backend
+            return fetch(`${API_BASE_URL}/registros`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(registro)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error al guardar en el backend');
+                }
+                return response.json();
+            })
+            .catch(error => {
+                console.error('Error al conectar con el backend, guardando en localStorage:', error);
+                // Fallback a localStorage
+                const registros = JSON.parse(localStorage.getItem('registros')) || [];
+                registros.push(registro);
+                localStorage.setItem('registros', JSON.stringify(registros));
+                return registro;
+            });
+        }
+        
+        function actualizarEstado() {
+            if (sesionActual) {
+                elementoEstado.textContent = 'Trabajando';
+                elementoEstado.style.color = 'var(--success)';
+            } else {
+                elementoEstado.textContent = 'No iniciado';
+                elementoEstado.style.color = 'var(--dark)';
+            }
+        }
+        
+        async function iniciarJornada() {
+            if (sesionActual) {
+                alert('Ya tienes una jornada iniciada.');
+                return;
+            }
+            
+            const ahora = new Date();
+            const inicio = ahora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            const hoy = ahora.toLocaleDateString('es-ES');
+            
+            const nuevoRegistro = {
+                usuario: usuarioActual,
+                fecha: hoy,
+                inicio: inicio,
+                fin: null,
+                actividades: ''
+            };
+            
+            try {
+                const registroGuardado = await guardarEnBackend(nuevoRegistro);
+                sesionActual = registroGuardado;
+                registros.push(registroGuardado);
+                actualizarEstado();
+                alert('Jornada iniciada a las ' + inicio);
+            } catch (error) {
+                alert('Error al iniciar la jornada: ' + error.message);
+            }
+        }
+        
+        function pausarJornada() {
+            if (!sesionActual) {
+                alert('No hay una jornada activa para pausar.');
+                return;
+            }
+            
+            alert('Función de pausa en desarrollo. Por ahora, usa "Finalizar Jornada" al terminar.');
+        }
+        
+        async function finalizarJornada() {
+            if (!sesionActual) {
+                alert('No hay una jornada activa para finalizar.');
+                return;
+            }
+            
+            const ahora = new Date();
+            const fin = ahora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            
+            // Guardar actividades antes de finalizar
+            const actividades = elementoActividades.value;
+            
+            try {
+                // Actualizar en el backend
+                const response = await fetch(`${API_BASE_URL}/registros/${sesionActual.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ fin, actividades })
+                });
+                
+                if (response.ok) {
+                    sesionActual.fin = fin;
+                    sesionActual.actividades = actividades;
+                    
+                    // Actualizar en localStorage como fallback
+                    const registrosLocal = JSON.parse(localStorage.getItem('registros')) || [];
+                    const index = registrosLocal.findIndex(r => r.id === sesionActual.id);
+                    if (index !== -1) {
+                        registrosLocal[index] = sesionActual;
+                        localStorage.setItem('registros', JSON.stringify(registrosLocal));
+                    }
+                    
+                    alert('Jornada finalizada a las ' + fin);
+                    sesionActual = null;
+                    actualizarEstado();
+                    actualizarEstadisticas();
+                    renderizarTablaHistorial();
+                } else {
+                    throw new Error('Error al finalizar la jornada en el backend');
+                }
+            } catch (error) {
+                console.error('Error al finalizar jornada:', error);
+                // Fallback a localStorage
+                sesionActual.fin = fin;
+                sesionActual.actividades = actividades;
+                
+                const registrosLocal = JSON.parse(localStorage.getItem('registros')) || [];
+                const index = registrosLocal.findIndex(r => r.id === sesionActual.id);
+                if (index !== -1) {
+                    registrosLocal[index] = sesionActual;
+                    localStorage.setItem('registros', JSON.stringify(registrosLocal));
+                }
+                
+                alert('Jornada finalizada a las ' + fin);
+                sesionActual = null;
+                actualizarEstado();
+                actualizarEstadisticas();
+                renderizarTablaHistorial();
+            }
+        }
+        
+        async function guardarActividades() {
+            if (!sesionActual) {
+                alert('Inicia una jornada primero para guardar actividades.');
+                return;
+            }
+            
+            const actividades = elementoActividades.value;
+            
+            try {
+                // Actualizar en el backend
+                const response = await fetch(`${API_BASE_URL}/registros/${sesionActual.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ actividades })
+                });
+                
+                if (response.ok) {
+                    sesionActual.actividades = actividades;
+                    
+                    // Actualizar en localStorage como fallback
+                    const registrosLocal = JSON.parse(localStorage.getItem('registros')) || [];
+                    const index = registrosLocal.findIndex(r => r.id === sesionActual.id);
+                    if (index !== -1) {
+                        registrosLocal[index] = sesionActual;
+                        localStorage.setItem('registros', JSON.stringify(registrosLocal));
+                    }
+                    
+                    alert('Actividades guardadas correctamente.');
+                } else {
+                    throw new Error('Error al guardar actividades en el backend');
+                }
+            } catch (error) {
+                console.error('Error al guardar actividades:', error);
+                // Fallback a localStorage
+                sesionActual.actividades = actividades;
+                
+                const registrosLocal = JSON.parse(localStorage.getItem('registros')) || [];
+                const index = registrosLocal.findIndex(r => r.id === sesionActual.id);
+                if (index !== -1) {
+                    registrosLocal[index] = sesionActual;
+                    localStorage.setItem('registros', JSON.stringify(registrosLocal));
+                }
+                
+                alert('Actividades guardadas correctamente.');
+            }
+        }
+        
+        function actualizarEstadisticas() {
+            // Calcular horas de hoy
+            const hoy = new Date().toLocaleDateString('es-ES');
+            const registrosHoy = registros.filter(registro => 
+                registro.fecha === hoy && registro.fin);
+            
+            let minutosTotalesHoy = 0;
+            registrosHoy.forEach(registro => {
+                const inicio = convertirHoraStringADate(registro.inicio);
+                const fin = convertirHoraStringADate(registro.fin);
+                const diferenciaMs = fin - inicio;
+                minutosTotalesHoy += diferenciaMs / (1000 * 60);
+            });
+            
+            const horasHoy = Math.floor(minutosTotalesHoy / 60);
+            const minutosHoy = Math.floor(minutosTotalesHoy % 60);
+            elementoHorasHoy.textContent = `${horasHoy}h ${minutosHoy}m`;
+            
+            // Calcular horas de la semana
+            const semanaPasada = new Date();
+            semanaPasada.setDate(semanaPasada.getDate() - 7);
+            
+            const registrosSemana = registros.filter(registro => {
+                const fechaRegistro = new Date(registro.fecha.split('/').reverse().join('-'));
+                return fechaRegistro >= semanaPasada && registro.fin;
+            });
+            
+            let minutosTotalesSemana = 0;
+            registrosSemana.forEach(registro => {
+                const inicio = convertirHoraStringADate(registro.inicio);
+                const fin = convertirHoraStringADate(registro.fin);
+                const diferenciaMs = fin - inicio;
+                minutosTotalesSemana += diferenciaMs / (1000 * 60);
+            });
+            
+            const horasSemana = Math.floor(minutosTotalesSemana / 60);
+            const minutosSemana = Math.floor(minutosTotalesSemana % 60);
+            elementoHorasSemana.textContent = `${horasSemana}h ${minutosSemana}m`;
+        }
+        
+        function renderizarTablaHistorial() {
+            cuerpoTablaHistorial.innerHTML = '';
+            
+            const registrosARenderizar = registrosFiltrados.length > 0 ? registrosFiltrados : registros;
+            
+            registrosARenderizar.forEach(registro => {
+                if (!registro.fin) return;
+                
+                const fila = document.createElement('tr');
+                
+                // Calcular horas trabajadas
+                const inicio = convertirHoraStringADate(registro.inicio);
+                const fin = convertirHoraStringADate(registro.fin);
+                const diferenciaMs = fin - inicio;
+                const horas = Math.floor(diferenciaMs / (1000 * 60 * 60));
+                const minutos = Math.floor((diferenciaMs % (1000 * 60 * 60)) / (1000 * 60));
+                
+                fila.innerHTML = `
+                    <td>${registro.fecha}</td>
+                    <td>${registro.inicio}</td>
+                    <td>${registro.fin}</td>
+                    <td>${horas}h ${minutos}m</td>
+                    <td>${registro.actividades || '-'}</td>
+                    <td>
+                        <button class="action-btn btn-edit" data-id="${registro.id}">Editar</button>
+                        <button class="action-btn btn-delete" data-id="${registro.id}">Eliminar</button>
+                    </td>
+                `;
+                
+                cuerpoTablaHistorial.appendChild(fila);
+            });
+            
+            // Agregar event listeners a los botones de editar y eliminar
+            document.querySelectorAll('.btn-edit').forEach(boton => {
+                boton.addEventListener('click', (e) => {
+                    const id = e.target.dataset.id;
+                    abrirModalEditar(id);
+                });
+            });
+            
+            document.querySelectorAll('.btn-delete').forEach(boton => {
+                boton.addEventListener('click', (e) => {
+                    const id = e.target.dataset.id;
+                    eliminarRegistro(id);
+                });
+            });
+        }
+        
+        function filtrarRegistros() {
+            const fechaFiltro = document.getElementById('filtro-fecha').value;
+            if (!fechaFiltro) {
+                alert('Por favor, selecciona una fecha para filtrar.');
+                return;
+            }
+            
+            // Convertir la fecha del filtro al formato local
+            const objetoFecha = new Date(fechaFiltro);
+            const fechaFiltroFormateada = objetoFecha.toLocaleDateString('es-ES');
+            
+            registrosFiltrados = registros.filter(registro => 
+                registro.fecha === fechaFiltroFormateada && registro.fin);
+            
+            renderizarTablaHistorial();
+        }
+        
+        function limpiarFiltro() {
+            document.getElementById('filtro-fecha').value = '';
+            registrosFiltrados = [];
+            renderizarTablaHistorial();
+        }
+        
+        function abrirModalEditar(id) {
+            const registro = registros.find(r => r.id == id);
+            if (!registro) return;
+            
+            document.getElementById('editar-id').value = registro.id;
+            
+            // Convertir la fecha al formato YYYY-MM-DD para el input date
+            const [dia, mes, anio] = registro.fecha.split('/');
+            document.getElementById('editar-fecha').value = `${anio}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
+            
+            // Convertir la hora al formato HH:MM para el input time
+            const [hora, modificador] = registro.inicio.split(' ');
+            let [horas, minutos] = hora.split(':');
+            
+            if (modificador === 'p.m.' && horas < 12) {
+                horas = parseInt(horas) + 12;
+            } else if (modificador === 'a.m.' && horas == 12) {
+                horas = 0;
+            }
+            
+            document.getElementById('editar-inicio').value = `${horas.toString().padStart(2, '0')}:${minutos}`;
+            
+            if (registro.fin) {
+                const [horaFin, modificadorFin] = registro.fin.split(' ');
+                let [horasFin, minutosFin] = horaFin.split(':');
+                
+                if (modificadorFin === 'p.m.' && horasFin < 12) {
+                    horasFin = parseInt(horasFin) + 12;
+                } else if (modificadorFin === 'a.m.' && horasFin == 12) {
+                    horasFin = 0;
+                }
+                
+                document.getElementById('editar-fin').value = `${horasFin.toString().padStart(2, '0')}:${minutosFin}`;
+            }
+            
+            document.getElementById('editar-actividades').value = registro.actividades || '';
+            
+            modalEditar.style.display = 'flex';
+        }
+        
+        function cerrarModal() {
+            modalEditar.style.display = 'none';
+        }
+        
+        async function guardarCambios() {
+            const id = document.getElementById('editar-id').value;
+            const fecha = document.getElementById('editar-fecha').value;
+            const inicio = document.getElementById('editar-inicio').value;
+            const fin = document.getElementById('editar-fin').value;
+            const actividades = document.getElementById('editar-actividades').value;
+            
+            if (!fecha || !inicio) {
+                alert('Por favor, completa al menos la fecha y hora de inicio.');
+                return;
+            }
+            
+            // Convertir la fecha al formato local
+            const objetoFecha = new Date(fecha);
+            const fechaFormateada = objetoFecha.toLocaleDateString('es-ES');
+            
+            // Convertir la hora al formato local
+            const objetoHoraInicio = new Date(`1970-01-01T${inicio}`);
+            const inicioFormateado = objetoHoraInicio.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            
+            let finFormateado = '';
+            if (fin) {
+                const objetoHoraFin = new Date(`1970-01-01T${fin}`);
+                finFormateado = objetoHoraFin.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            }
+            
+            try {
+                // Actualizar en el backend
+                const response = await fetch(`${API_BASE_URL}/registros/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        fecha: fechaFormateada,
+                        inicio: inicioFormateado,
+                        fin: finFormateado,
+                        actividades
+                    })
+                });
+                
+                if (response.ok) {
+                    // Actualizar localmente
+                    const indiceRegistro = registros.findIndex(r => r.id == id);
+                    if (indiceRegistro !== -1) {
+                        registros[indiceRegistro].fecha = fechaFormateada;
+                        registros[indiceRegistro].inicio = inicioFormateado;
+                        registros[indiceRegistro].fin = finFormateado || registros[indiceRegistro].fin;
+                        registros[indiceRegistro].actividades = actividades;
+                    }
+                    
+                    // Actualizar en localStorage como fallback
+                    const registrosLocal = JSON.parse(localStorage.getItem('registros')) || [];
+                    const indiceLocal = registrosLocal.findIndex(r => r.id == id);
+                    if (indiceLocal !== -1) {
+                        registrosLocal[indiceLocal] = registros[indiceRegistro];
+                        localStorage.setItem('registros', JSON.stringify(registrosLocal));
+                    }
+                    
+                    cerrarModal();
+                    alert('Registro actualizado correctamente.');
+                    actualizarEstadisticas();
+                    renderizarTablaHistorial();
+                } else {
+                    throw new Error('Error al actualizar en el backend');
+                }
+            } catch (error) {
+                console.error('Error al actualizar registro:', error);
+                // Fallback a localStorage
+                const indiceRegistro = registros.findIndex(r => r.id == id);
+                if (indiceRegistro !== -1) {
+                    registros[indiceRegistro].fecha = fechaFormateada;
+                    registros[indiceRegistro].inicio = inicioFormateado;
+                    registros[indiceRegistro].fin = finFormateado || registros[indiceRegistro].fin;
+                    registros[indiceRegistro].actividades = actividades;
+                }
+                
+                const registrosLocal = JSON.parse(localStorage.getItem('registros')) || [];
+                const indiceLocal = registrosLocal.findIndex(r => r.id == id);
+                if (indiceLocal !== -1) {
+                    registrosLocal[indiceLocal] = registros[indiceRegistro];
+                    localStorage.setItem('registros', JSON.stringify(registrosLocal));
+                }
+                
+                cerrarModal();
+                alert('Registro actualizado correctamente.');
+                actualizarEstadisticas();
+                renderizarTablaHistorial();
+            }
+        }
+        
+        async function eliminarRegistro(id) {
+            if (!confirm('¿Estás seguro de que quieres eliminar este registro?')) {
+                return;
+            }
+            
+            try {
+                // Eliminar en el backend
+                const response = await fetch(`${API_BASE_URL}/registros/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    // Eliminar localmente
+                    registros = registros.filter(registro => registro.id != id);
+                    
+                    // Eliminar en localStorage como fallback
+                    const registrosLocal = JSON.parse(localStorage.getItem('registros')) || [];
+                    const nuevosRegistros = registrosLocal.filter(registro => registro.id != id);
+                    localStorage.setItem('registros', JSON.stringify(nuevosRegistros));
+                    
+                    alert('Registro eliminado correctamente.');
+                    actualizarEstadisticas();
+                    renderizarTablaHistorial();
+                } else {
+                    throw new Error('Error al eliminar en el backend');
+                }
+            } catch (error) {
+                console.error('Error al eliminar registro:', error);
+                // Fallback a localStorage
+                registros = registros.filter(registro => registro.id != id);
+                
+                const registrosLocal = JSON.parse(localStorage.getItem('registros')) || [];
+                const nuevosRegistros = registrosLocal.filter(registro => registro.id != id);
+                localStorage.setItem('registros', JSON.stringify(nuevosRegistros));
+                
+                alert('Registro eliminado correctamente.');
+                actualizarEstadisticas();
+                renderizarTablaHistorial();
+            }
+        }
+        
+        async function exportarPDF() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/exportar/pdf?usuario=${encodeURIComponent(usuarioActual)}`);
+                
+                if (!response.ok) {
+                    throw new Error('Error al generar el PDF');
+                }
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `registros-horas-${usuarioActual}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                alert('Error al exportar a PDF: ' + error.message);
+                // Aquí podrías implementar un fallback para generar PDF en el cliente
+            }
+        }
+        
+        async function exportarExcel() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/exportar/excel?usuario=${encodeURIComponent(usuarioActual)}`);
+                
+                if (!response.ok) {
+                    throw new Error('Error al generar el Excel');
+                }
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `registros-horas-${usuarioActual}.xlsx`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                alert('Error al exportar a Excel: ' + error.message);
+                // Aquí podrías implementar un fallback para generar Excel en el cliente
+            }
+        }
+        
+        // Funciones auxiliares
+        function convertirHoraStringADate(horaString) {
+            const [hora, modificador] = horaString.split(' ');
+            let [horas, minutos] = hora.split(':');
+            
+            horas = parseInt(horas);
+            minutos = parseInt(minutos);
+            
+            if (modificador === 'p.m.' && horas < 12) {
+                horas += 12;
+            } else if (modificador === 'a.m.' && horas === 12) {
+                horas = 0;
+            }
+            
+            const fecha = new Date();
+            fecha.setHours(horas, minutos, 0, 0);
+            return fecha;
+        }
+    </script>
+</body>
+</html>
